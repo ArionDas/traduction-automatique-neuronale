@@ -22,6 +22,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 from config import CONFIG
 from encoder import EncoderRNN
 from decoder import AttnDecoderRNN
+from data_preparation import get_dataloader
 
 
 def asMinutes(s):
@@ -50,7 +51,7 @@ def train_epoch(dataloader, encoder, decoder, encoder_optimizer, decoder_optimiz
         decoder_outputs, _, _ = decoder(encoder_outputs, encoder_hidden, target_tensor)
         
         loss = criterion(
-            decoder_outputs.view(-1, decoder.outputs.size(-1)),
+            decoder_outputs.view(-1, decoder_outputs.size(-1)),
             target_tensor.view(-1)
         )
         loss.backward()
@@ -112,3 +113,9 @@ def main():
     
     encoder = EncoderRNN(input_lang.n_words, hidden_size).to(device)
     decoder = AttnDecoderRNN(hidden_size, output_lang.n_words).to(device)
+    
+    train(train_dataloader, encoder, decoder, CONFIG["n_epochs"])
+    
+
+if __name__ == "__main__":
+    main()
